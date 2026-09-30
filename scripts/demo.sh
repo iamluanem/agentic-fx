@@ -32,7 +32,7 @@ wait_for() { # description jq-filter-on-goal
 
 move_rate() { # factor
   local rate
-  rate=$(call GET /fx/rates | jq --argjson f "$1" '.[] | select(.pair=="BRL_EUR") | .reference * $f')
+  rate=$(call GET /fx/rates | jq --argjson f "$1" '.[] | select(.pair=="BRL_EUR") | (.reference * $f * 1e8 | round) / 1e8')
   call POST /dev/fx/rates "{\"pair\":\"BRL_EUR\",\"rate\":$rate}" >/dev/null
   say "BRL->EUR set to $rate"
 }

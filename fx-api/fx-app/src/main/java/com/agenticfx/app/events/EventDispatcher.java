@@ -10,7 +10,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Component;
 
@@ -31,7 +30,7 @@ public class EventDispatcher {
     private final JdbcClient jdbc;
     private final StrategyRunner strategy;
 
-    public EventDispatcher(JsonCodec json, JdbcClient jdbc, @Lazy StrategyRunner strategy) {
+    public EventDispatcher(JsonCodec json, JdbcClient jdbc, StrategyRunner strategy) {
         this.json = json;
         this.jdbc = jdbc;
         this.strategy = strategy;

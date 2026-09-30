@@ -9,6 +9,9 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.ErrorResponse;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -51,13 +54,22 @@ public class ApiExceptionHandler {
     }
 
     @ExceptionHandler({IllegalArgumentException.class, MethodArgumentTypeMismatchException.class,
-            MissingRequestHeaderException.class})
+            MissingRequestHeaderException.class, HttpMessageNotReadableException.class})
     ProblemDetail badRequest(Exception e) {
         return problem(HttpStatus.BAD_REQUEST, "BAD_REQUEST", e.getMessage());
     }
 
+    @ExceptionHandler(AccessDeniedException.class)
+    ProblemDetail forbidden(AccessDeniedException e) {
+        return problem(HttpStatus.FORBIDDEN, "FORBIDDEN", "Access denied");
+    }
+
     @ExceptionHandler(Exception.class)
     ProblemDetail unexpected(Exception e) {
+        if (e instanceof ErrorResponse spring) {   // 404 no route, 405, 415, ... keep Spring's status
+            HttpStatus status = HttpStatus.valueOf(spring.getStatusCode().value());
+            return problem(status, status.name(), spring.getBody().getDetail());
+        }
         log.error("Unhandled error", e);
         return problem(HttpStatus.INTERNAL_SERVER_ERROR, "INTERNAL_ERROR",
                 "Unexpected error; reference " + MDC.get("correlationId"));

@@ -22,6 +22,7 @@ import com.agenticfx.core.strategy.StrategySettings;
 import org.slf4j.MDC;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.time.Clock;
@@ -66,6 +67,7 @@ public class CoreConfiguration {
 
     /** The provider used for quotes and execution. Real providers fail fast when credentials are missing. */
     @Bean
+    @Primary
     FxProvider fxProvider(AgenticFxProperties properties, MockFxProvider mock) {
         return switch (properties.provider().name()) {
             case "mock" -> mock;
