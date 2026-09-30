@@ -1,0 +1,116 @@
+spring:
+  application:
+    name: fx-api
+  threads:
+    virtual:
+      enabled: true
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/agenticfx}
+    username: ${DB_USER:agenticfx}
+    password: ${DB_PASSWORD:agenticfx}
+    hikari:
+      maximum-pool-size: ${DB_POOL_SIZE:10}
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      acks: all
+      properties:
+        enable.idempotence: true
+    consumer:
+      group-id: fx-api
+      auto-offset-reset: earliest
+      enable-auto-commit: false
+
+agentic-fx:
+  policy:
+    target-overshoot-tolerance: 0.01
+    max-rate-slippage-after-approval: 0.005
+    business-zone: America/Sao_Paulo
+  execution:
+    quote-ttl: PT30S
+    approval-ttl: PT24H
+    recover-after: PT1M
+  market:
+    simulator-enabled: true
+    tick-interval: ${MARKET_TICK_INTERVAL:PT5S}
+    reference-window: PT60M
+    volatility-bps: 3
+    mean-reversion: 0.2
+  provider:
+    name: ${FX_PROVIDER:mock}
+    mock-fee-rate: 0.006
+  strategy:
+    fee-estimate: 0.006
+    rounding-increment: 500
+    min-tranche: 100
+    full-strength-multiple: 4
+    cooldown: PT6H
+  events:
+    broker: ${EVENT_BROKER:kafka}
+    topic: fx.domain-events
+    relay-interval: PT0.5S
+  security:
+    jwt-secret: ${JWT_SECRET:}
+    issuer: agentic-fx
+    user-token-ttl: PT8H
+    agent-token-ttl: PT10M
+    requests-per-minute: ${RATE_LIMIT_PER_MINUTE:600}
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      probes:
+        enabled: true
+  # Trace and span ids are always created (and appear in logs); exporting them is opt-in via the "otel" profile.
+  tracing:
+    sampling:
+      probability: ${TRACING_SAMPLING:1.0}
+
+logging:
+  structured:
+    format:
+      console: ecs
+  level:
+    root: INFO
+    com.agenticfx: INFO
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+logging:
+  structured:
+    format:
+      console: ""
+  level:
+    com.agenticfx: DEBUG
+
+---
+spring:
+  config:
+    activate:
+      on-profile: otel
+management:
+  otlp:
+    tracing:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318/v1/traces}
