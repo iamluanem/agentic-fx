@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  background: #edf0f5;
+  color: #14213d;
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  font-feature-settings: "tnum" 1, "cv11" 1;
+}
+
+:focus-visible {
+  outline: 2px solid #4338ca;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@layer components {
+  .panel {
+    @apply rounded-panel border border-rule bg-paper shadow-panel;
+  }
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary {
+    @apply btn bg-ink text-white hover:bg-ink-soft;
+  }
+  .btn-allow {
+    @apply btn bg-allow text-white hover:brightness-110;
+  }
+  .btn-quiet {
+    @apply btn border border-rule bg-paper text-ink hover:bg-canvas;
+  }
+  .btn-deny {
+    @apply btn border border-deny/40 bg-paper text-deny hover:bg-deny-soft;
+  }
+  .field {
+    @apply w-full rounded-lg border border-rule bg-paper px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus:border-agent focus:outline-none;
+  }
+  .label {
+    @apply text-xs font-medium text-ink-soft;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
